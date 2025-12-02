@@ -24,3 +24,26 @@
 | `frontend` | `axios@^1.13.2`, `react-router-dom@^6.4.5` + `npm audit fix`. Il reste 9 vulnérabilités (svgo/postcss/webpack-dev-server) liées à `react-scripts@5.0.1`. Une migration vers Vite ou CRA 6 (quand disponible) est recommandée pour les éliminer proprement. |
 
 Tous les `npm install` ont été relancés service par service et `npm audit` est propre partout sauf sur le frontend (limitations expliquées ci‑dessus).
+
+## 4. Tests et vérifications
+
+1. Vérifier que MongoDB et les microservices sont joignables puis lancer `npm run start:backend` et `npm run start:all` depuis la racine.
+2. Scénarios à vérifier manuellement :
+   - Inscription/connexion avec des valeurs invalides (doivent être rejetées).
+   - Passage de commande avec données incomplètes ou valeurs négatives (doit retourner 400).
+   - Mise à jour du stock et statut commande depuis `/admin` (valeurs invalides rejetées, succès journalisé).
+3. Pour suivre les vulnérabilités restantes côté frontend, garder un `npm audit` régulier et planifier la migration de l’outillage de build.
+
+## 5. Pistes complémentaires
+
+- Ajouter des tests d’intégration autour des routes `/api/orders` pour verrouiller les validations.
+- Externaliser les URL des microservices vers la configuration (Vault/Secrets Manager) pour éviter la configuration en dur dans l’environnement de prod.
+- Remplacer `react-scripts` par un outil maintenu dès que possible afin d’éliminer les dépendances dépréciées (svgo 1.x, webpack-dev-server 3.x).
+- Ajouter un mécanisme de notifications utilisateur (type toast) côté frontend à la place de `connect-flash`, plus adapté aux architectures SPA/API.
+
+## 6. Environnements conteneurisés (préproduction & production)
+
+- Deux nouvelles piles Docker sont disponibles (`docker-compose.preprod.yml` et `docker-compose.prod.yml`). Elles construisent tous les services (frontend, backend, gateway, microservices, MongoDB) avec des variables adaptées (`NODE_ENV=staging`/`production`, `LOG_LEVEL` distincts, CORS configuré sur les domaines ciblés).
+- Les fichiers `.env.preprod` et `.env.production` regroupent les variables spécifiques à chaque environnement : URL du gateway (`GATEWAY_URL=http://gateway:8000`), bases Mongo distinctes, secrets JWT différents, configuration des microservices de notification et de stock, ainsi que la valeur `REACT_APP_API_BASE_URL` utilisée par le frontend.
+- Pour démarrer un environnement de qualification local : `docker compose -f docker-compose.preprod.yml up --build`. Pour simuler la production : `docker compose -f docker-compose.prod.yml up --build`.
+- Ces mêmes paramètres peuvent être réutilisés sur Render (ou tout orchestrateur) en pointant les services Docker vers les branches `staging` (préproduction) et `main` (production) et en recopiant les variables des fichiers `.env.*`.

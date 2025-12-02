@@ -1,0 +1,78 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: exam_production
+    ports:
+      - '27018:27017'
+    volumes:
+      - mongo-prod-data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/exam_production}
+      GATEWAY_URL: ${GATEWAY_URL:-http://gateway:8000}
+    ports:
+      - '5050:5000'
+    depends_on:
+      - mongo
+      - gateway
+
+  gateway:
+    build:
+      context: ./gateway
+    env_file:
+      - .env.production
+    environment:
+      NOTIFI_SERVICE_URL: ${NOTIFI_SERVICE_URL:-http://notifications:3001}
+      STOCK_SERVICE_URL: ${STOCK_SERVICE_URL:-http://stock-management:3002}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://backend:5000}
+      GATEWAY_PORT: ${GATEWAY_PORT:-8000}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - notifications
+      - stock-management
+
+  frontend:
+    build:
+      context: ./frontend
+    env_file:
+      - .env.production
+    environment:
+      REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-http://backend:5000/api}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+  notifications:
+    build:
+      context: ./microservices/notifications
+    env_file:
+      - .env.production
+    environment:
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_APPLICATION_PASSWORD: ${EMAIL_APPLICATION_PASSWORD}
+    ports:
+      - '3003:3001'
+
+  stock-management:
+    build:
+      context: ./microservices/stock-management
+    env_file:
+      - .env.production
+    ports:
+      - '3004:3002'
+
+volumes:
+  mongo-prod-data:

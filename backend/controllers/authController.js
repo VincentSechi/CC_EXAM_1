@@ -8,9 +8,11 @@ const authLog = require('debug')('authRoutes:console');
 const logger = require('../utils/logger');
 
 const ONE_HOUR = 60 * 60 * 1000;
+const isProduction = process.env.NODE_ENV === 'production';
 const cookieBaseOptions = {
   httpOnly: true,
-  sameSite: 'strict',
+  sameSite: isProduction ? 'none' : 'lax',
+  secure: isProduction,
   path: '/',
 };
 
@@ -40,11 +42,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.cookie('token', token, {
-      ...cookieBaseOptions,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: ONE_HOUR,
-    });
+    res.cookie('token', token, { ...cookieBaseOptions, maxAge: ONE_HOUR });
 
     res.json({ role: user.role, username: user.username });
   } catch (error) {
@@ -95,9 +93,6 @@ exports.register = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie('token', {
-    ...cookieBaseOptions,
-    secure: process.env.NODE_ENV === 'production',
-  });
+  res.clearCookie('token', cookieBaseOptions);
   res.status(200).json({ message: 'Déconnexion réussie.' });
 };

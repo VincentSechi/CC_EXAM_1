@@ -6,6 +6,7 @@ const Product = require('../models/Product');
 const { orderCreationSchema, orderStatusSchema, objectIdRegex } = require('../utils/validationSchemas');
 const orderLog = require('debug')('orderRoutes:console');
 const logger = require('../utils/logger');
+const gatewayBaseUrl = process.env.GATEWAY_URL || 'http://localhost:8000';
 
 
 exports.createOrder = async (req, res) => {
@@ -72,8 +73,8 @@ exports.createOrder = async (req, res) => {
     const savedOrder = await newOrder.save();
 
     try {
-      await axios.post('http://localhost:8000/notify', {
-        to: 'syaob@yahoo.fr',
+      await axios.post(`${gatewayBaseUrl}/notify`, {
+        to: 'sechivincent@gmail.com',
         subject: 'Nouvelle Commande Créée',
         text: `Une commande a été créée avec succès pour les produits suivants : \n${orderDetails
           .map((item) => `Produit ID : ${item.productId}, Quantité : ${item.quantity}`)
