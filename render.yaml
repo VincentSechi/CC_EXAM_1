@@ -20,7 +20,7 @@ services:
 
   - type: web
     name: exam-frontend
-    env: node
+    env: static
     plan: free
     region: frankfurt
     repo: https://github.com/VincentSechi/CC_Exam.git
