@@ -6,12 +6,17 @@
     "start:backend": "nodemon backend/server.js",
     "start:frontend": "npm --prefix frontend start",
     "start:all": "npm-run-all --parallel start:notifications start:stock-management start:gateway start:backend start:frontend",
-    "lint": "eslint \"backend/**/*.js\" \"gateway/**/*.js\" \"microservices/**/*.js\" \"frontend/src/**/*.js\""
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,jsx,json,md,cjs}\"",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.37.2",
+    "globals": "^16.5.0",
+    "jsdoc": "^4.0.5",
     "prettier": "^3.4.2"
   }
 }

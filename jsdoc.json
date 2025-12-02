@@ -1,0 +1,28 @@
+{
+  "tags": {
+    "allowUnknownTags": false
+  },
+  "source": {
+    "include": [
+      "backend",
+      "gateway",
+      "microservices",
+      "frontend/src"
+    ],
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)node_modules"
+  },
+  "plugins": [],
+  "opts": {
+    "encoding": "utf8",
+    "destination": "docs",
+    "recurse": true,
+    "verbose": false,
+    "template": "templates/default"
+  },
+  "templates": {
+    "default": {
+      "includeDate": false
+    }
+  }
+}
