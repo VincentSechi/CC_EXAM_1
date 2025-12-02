@@ -17,20 +17,7 @@ services:
         sync: false
       - key: EMAIL_APPLICATION_PASSWORD
         sync: false
-
-  - type: web
-    name: exam-frontend
-    env: static
-    plan: free
-    region: frankfurt
-    repo: https://github.com/VincentSechi/CC_Exam.git
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    envVars:
-      - key: REACT_APP_API_BASE_URL
-        value: https://exam-backend-2oi1.onrender.com/api
-
+        
   - type: web
     name: exam-notifications
     env: node
